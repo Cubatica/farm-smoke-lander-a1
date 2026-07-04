@@ -1,10 +1,178 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>farm-smoke-lander-a1</title>
-  <style>body{font-family:system-ui;margin:0;display:grid;place-items:center;min-height:100vh;background:#0b1220;color:#e7ecf3}main{text-align:center;padding:2rem}</style>
-</head>
-<body><main><h1>farm-smoke-lander-a1</h1><p>Scaffold live — content lands via the farm.</p></main></body>
-</html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>farm-smoke-lander-a1 — analytics A8 proof</title>
+<!-- ============================================================================
+     tracking-head.html  —  Wright farm v2 lander tracking <head> partial
+     ----------------------------------------------------------------------------
+     HYBRID wiring (Josh's directive 2026-07-04):
+       1. PostHog JS SDK injected DIRECTLY (product analytics + funnels)
+       2. ONE GTM container (the pixel bus: GA4 / Facebook / TikTok live as TAGS
+          inside GTM, NOT as separate hard-coded page snippets)
+       3. A dataLayer event contract (see tracking.js)
+
+     INJECTION: the scaffold string-substitutes these placeholders at build time
+     from the brand's 1Password item (see brand-1p-item-schema.md):
+          <- posthog_project_key   (public phc_... key, safe in HTML)
+         <- posthog_host          (e.g. https://us.i.posthog.com)
+               <- gtm_container_id       (GTM-XXXXXXX)
+
+     GRACEFUL DEGRADATION CONTRACT (load-bearing — read before editing):
+       Every block below is guarded so that if a placeholder is LEFT
+       UNSUBSTITUTED (still literally "@@...@@") or resolves to EMPTY, the block
+       is a silent no-op: no console errors, no broken network requests. A lander
+       with NONE of these IDs still renders and ships. Tracking is ADDITIVE, not a
+       gate. (The scaffold SHOULD also omit a block entirely when the ID is absent;
+       the runtime guard is the belt-and-braces fallback.)
+
+     Placeholders start with "@" — no real PostHog key (phc_...) or GTM id
+     (GTM-...) ever does — so a leading "@" is the reliable "unsubstituted" test.
+     ============================================================================ -->
+
+<!-- Seed dataLayer FIRST and UNCONDITIONALLY. Even with no GTM container, tracking.js
+     and any early pushes need this array to exist so pushes queue harmlessly. -->
+<script>window.dataLayer = window.dataLayer || [];</script>
+
+<!-- ----------------------------------------------------------------------------
+     OPTIONAL: Google Consent Mode v2 default (EEA/UK). DISABLED by default —
+     enabling denied-by-default without a CMP that later fires consent 'update'
+     will suppress ALL Google tags (breaks the additive/ship-live default).
+     Uncomment ONLY for a brand that has a CMP wired to grant consent.
+     Signals: ad_storage, analytics_storage, ad_user_data, ad_personalization.
+------------------------------------------------------------------------------ -->
+<!--
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied', analytics_storage: 'denied',
+    ad_user_data: 'denied', ad_personalization: 'denied',
+    wait_for_update: 500
+  });
+</script>
+-->
+
+<!-- ----------------------------------------------------------------------------
+     1) PostHog JS SDK — injected DIRECTLY (product analytics + funnels)
+     Snippet: current array.js stub loader (posthog.com/docs/libraries/js,
+     fetched 2026-07-04). `defaults` is a dated behavior pin — do not hand-edit;
+     re-copy the date from the project's own snippet page on provisioning.
+     GUARD: if  is unsubstituted/empty, the IIFE returns before
+     touching window.posthog — nothing loads, nothing errors.
+------------------------------------------------------------------------------ -->
+<script>
+(function () {
+  var PH_KEY  = "";
+  var PH_HOST = "";
+  // Graceful skip: unsubstituted placeholder (leading "@") or empty => no-op.
+  if (!PH_KEY || PH_KEY.charAt(0) === "@") return;
+  // Host fallback: if host is unsubstituted/empty, default to US cloud.
+  if (!PH_HOST || PH_HOST.charAt(0) === "@") PH_HOST = "https://us.i.posthog.com";
+
+  !(function (t, e) {
+    var o, n, p, r;
+    e.__SV ||
+      ((window.posthog = e),
+      (e._i = []),
+      (e.init = function (i, s, a) {
+        function g(t, e) {
+          var o = e.split(".");
+          (2 == o.length && ((t = t[o[0]]), (e = o[1])),
+            (t[e] = function () {
+              t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+            }));
+        }
+        (((p = t.createElement("script")).type = "text/javascript"),
+          (p.crossOrigin = "anonymous"),
+          (p.async = !0),
+          (p.src =
+            s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js"),
+          (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r));
+        var u = e;
+        for (
+          void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+            u.people = u.people || [],
+            u.toString = function (t) {
+              var e = "posthog";
+              return ("posthog" !== a && (e += "." + a), t || (e += " (stub)"), e);
+            },
+            u.people.toString = function () {
+              return u.toString(1) + ".people (stub)";
+            },
+            o = "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric".split(" "),
+            n = 0;
+          n < o.length;
+          n++
+        )
+          g(u, o[n]);
+        e._i.push([i, s, a]);
+      }),
+      (e.__SV = 1));
+  })(document, window.posthog || []);
+
+  window.posthog.init(PH_KEY, {
+    api_host: PH_HOST,
+    defaults: "2026-05-30",
+    person_profiles: "identified_only"
+    // capture_pageview default true (one $pageview per full page load).
+    // For an SPA build set capture_pageview:false and call posthog.capture('$pageview')
+    // on each route change — tracking.js farmTracking.pageView() also handles the dataLayer side.
+  });
+})();
+</script>
+<!-- End PostHog -->
+
+<!-- ----------------------------------------------------------------------------
+     2) Google Tag Manager container — the pixel bus (GA4 / FB / TikTok as tags)
+     Snippet: current GTM head loader (support.google.com/tagmanager, 2026).
+     GUARD: the IIFE returns before creating the <script> if  is
+     unsubstituted/empty — no gtm.js?id= request, no 404, no console error.
+------------------------------------------------------------------------------ -->
+<script>
+(function (w, d, s, l, i) {
+  // Graceful skip: unsubstituted placeholder (leading "@") or empty => no-op.
+  if (!i || i.charAt(0) === "@") return;
+  // SYNCHRONOUS marker so tracking.js's bootstrapGTM() never re-injects a 2nd
+  // gtm.js (window.google_tag_manager is only set AFTER the async gtm.js runs).
+  w.__FARM_GTM_LOADED__ = true;
+  w[l] = w[l] || [];
+  w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+  var f = d.getElementsByTagName(s)[0],
+    j = d.createElement(s),
+    dl = l != "dataLayer" ? "&l=" + l : "";
+  j.async = true;
+  j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+  f.parentNode.insertBefore(j, f);
+})(window, document, "script", "dataLayer", "");
+</script>
+<!-- End Google Tag Manager -->
+<script>window.FARM_TRACKING={brand:"farm-smoke-lander-a1",posthogKey:"",posthogHost:"",gtmId:"",ga4Id:"",fbPixelId:"",tiktokPixelId:"",debug:false};</script>
+</head><body>
+<!-- ============================================================================
+     tracking-body.html  —  GTM <noscript> body partial
+     ----------------------------------------------------------------------------
+     Placement: immediately AFTER the opening <body> tag (GTM requirement).
+     Injection:  <- gtm_container_id (GTM-XXXXXXX) from the brand 1P item.
+
+     GRACEFUL DEGRADATION CONTRACT:
+       <noscript> cannot run a JS guard — it renders ONLY when JavaScript is
+       disabled. Therefore the PRIMARY guard for this block is BUILD-TIME: the
+       scaffold MUST omit this partial entirely when  is absent (same
+       condition under which it omits the GTM head loader). See README.md.
+
+       FALLBACK (if left unsubstituted): with  still in place the src
+       becomes ns.html?id= inside a hidden (display:none) iframe that
+       ONLY the no-JS path ever requests. No script executes, nothing is visible,
+       and the JS-enabled 99.x% of visitors never touch it — benign, but omission
+       at build time is the correct, clean behavior. Never ship a bare "GTM-".
+     ============================================================================ -->
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<main style="font-family:system-ui;max-width:40rem;margin:4rem auto;padding:0 1.5rem">
+<h1>farm-smoke-lander-a1</h1>
+<p>A1 + A8 proof: Cloudflare Pages deploy works, and the Wright farm analytics template is wired in (PostHog + GTM), degrading gracefully with no IDs configured — the page still ships. Drop real IDs into the brand 1P item to light up tracking.</p>
+<button id="cta" onclick="window.farmTracking&&window.farmTracking.trackCtaClick(\"hero\",\"Get started\")">Get started</button>
+</main>
+<script src="/tracking.js"></script>
+</body></html>
